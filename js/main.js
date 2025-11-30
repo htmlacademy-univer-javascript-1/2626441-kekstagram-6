@@ -1,3 +1,10 @@
-import {PHOTOS} from './data.js';
+'use strict';
 
-console.log(PHOTOS);
+import {PHOTOS} from './data.js';
+import {renderPictures} from './pictures.js';
+
+function initApp() {
+  renderPictures(PHOTOS);
+}
+
+initApp();
