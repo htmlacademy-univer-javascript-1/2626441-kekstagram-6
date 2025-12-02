@@ -1,4 +1,4 @@
-'use strict';
+//'use strict';
 
 const getRandomInteger = (a, b) => {
   const lower = Math.ceil(Math.min(a, b));

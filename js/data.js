@@ -1,4 +1,4 @@
-'use strict';
+//'use strict';
 
 import {getRandomArrayElement, getRandomInteger} from './util.js';
 import {NAMES, MESSAGES, DESCRIPTIONS} from './constants.js';

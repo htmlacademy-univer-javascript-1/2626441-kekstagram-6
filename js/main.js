@@ -1,4 +1,4 @@
-'use strict';
+//'use strict';
 
 import {PHOTOS} from './data.js';
 import {renderPictures} from './pictures.js';
