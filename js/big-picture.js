@@ -1,5 +1,7 @@
 //'use strict';
 
+const COMMENTS_PER_STEP = 5;
+
 const bigPicture = document.querySelector('.big-picture');
 const body = document.body;
 
@@ -11,10 +13,10 @@ const commentsList = bigPicture.querySelector('.social__comments');
 
 const commentCountBlock = bigPicture.querySelector('.social__comment-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
-
 const closeBtn = bigPicture.querySelector('#picture-cancel');
 
-//let currentPhoto = null;
+let allComments = [];
+let renderedComments = 0;
 
 function createComment({ avatar, name, message }) {
   const li = document.createElement('li');
@@ -34,24 +36,39 @@ function createComment({ avatar, name, message }) {
   return li;
 }
 
-function openBigPicture(photoData) {
-  //currentPhoto = photoData;
+function updateCommentsCounter() {
+  commentCountBlock.textContent = `${renderedComments} из ${allComments.length} комментариев`;
+}
 
-  bigImg.src = photoData.url;
-  likesCount.textContent = photoData.likes;
-  commentsCount.textContent = photoData.comments.length;
-  descriptionEl.textContent = photoData.description;
+function renderCommentsChunk() {
+  const next = allComments.slice(renderedComments, renderedComments + COMMENTS_PER_STEP);
+
+  next.forEach((comment) => {
+    commentsList.appendChild(createComment(comment));
+  });
+
+  renderedComments += next.length;
+  updateCommentsCounter();
+
+  if (renderedComments >= allComments.length) {
+    commentsLoader.classList.add('hidden');
+  }
+}
+
+function openBigPicture(photo) {
+  bigImg.src = photo.url;
+  likesCount.textContent = photo.likes;
+  commentsCount.textContent = photo.comments.length;
+  descriptionEl.textContent = photo.description;
+
+  allComments = photo.comments;
+  renderedComments = 0;
 
   commentsList.innerHTML = '';
+  commentCountBlock.classList.remove('hidden');
+  commentsLoader.classList.remove('hidden');
 
-  const fragment = document.createDocumentFragment();
-  photoData.comments.forEach((comment) => {
-    fragment.appendChild(createComment(comment));
-  });
-  commentsList.appendChild(fragment);
-
-  commentCountBlock.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
+  renderCommentsChunk();
 
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
@@ -72,6 +89,6 @@ function onEscKey(evt) {
 }
 
 closeBtn.addEventListener('click', closeBigPicture);
+commentsLoader.addEventListener('click', renderCommentsChunk);
 
-
-export {openBigPicture};
+export { openBigPicture };
