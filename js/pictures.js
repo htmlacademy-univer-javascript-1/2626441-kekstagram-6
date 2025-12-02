@@ -1,4 +1,6 @@
-'use strict';
+//'use strict';
+
+import { openBigPicture } from './big-picture.js';
 
 const pictureTemplate = document
   .querySelector('#picture')
@@ -7,13 +9,21 @@ const pictureTemplate = document
 
 const pictureContainer = document.querySelector('.pictures');
 
-function createPictureElement({url, description, likes, comments}) {
+function createPictureElement(photo) {
+  const { url, description, likes, comments } = photo;
+
   const pictureElement = pictureTemplate.cloneNode(true);
 
-  pictureElement.querySelector('.picture__img').src = url;
-  pictureElement.querySelector('.picture__img').alt = description;
+  const img = pictureElement.querySelector('.picture__img');
+  img.src = url;
+  img.alt = description;
+
   pictureElement.querySelector('.picture__likes').textContent = likes;
   pictureElement.querySelector('.picture__comments').textContent = comments.length;
+
+  pictureElement.addEventListener('click', () => {
+    openBigPicture(photo);
+  });
 
   return pictureElement;
 }
@@ -22,10 +32,11 @@ function renderPictures(photos) {
   const fragment = document.createDocumentFragment();
 
   photos.forEach((photo) => {
-    fragment.appendChild(createPictureElement(photo));
+    const pictureElement = createPictureElement(photo);
+    fragment.appendChild(pictureElement);
   });
 
   pictureContainer.appendChild(fragment);
 }
 
-export {renderPictures};
+export { renderPictures };
