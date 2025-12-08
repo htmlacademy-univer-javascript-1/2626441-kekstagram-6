@@ -1,12 +1,15 @@
+import {
+  uploadForm,
+  uploadInput,
+  uploadOverlay,
+  uploadCancel,
+} from './form-constants.js';
+
 import * as PristineModule from '../vendor/pristine/pristine.js';
+import { resetEffects } from './effects.js';
 
-const uploadInput = document.querySelector('.img-upload__input');
-const uploadOverlay = document.querySelector('.img-upload__overlay');
-const uploadCancel = document.querySelector('.img-upload__cancel');
-const form = document.querySelector('.img-upload__form');
-
-const hashtagsField = form.querySelector('.text__hashtags');
-const commentField = form.querySelector('.text__description');
+const hashtagsField = uploadForm.querySelector('.text__hashtags');
+const commentField = uploadForm.querySelector('.text__description');
 
 const MAX_HASHTAGS = 5;
 const MAX_COMMENT_LENGTH = 140;
@@ -37,8 +40,7 @@ function validateHashtags(value) {
     return false;
   }
 
-  const hasDuplicates = new Set(tags).size !== tags.length;
-  return !hasDuplicates;
+  return new Set(tags).size === tags.length;
 }
 
 function getHashtagError(value) {
@@ -73,21 +75,21 @@ function closeForm() {
   uploadOverlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
 
-  form.reset();
+  uploadForm.reset();
   uploadInput.value = '';
+
+  resetEffects();
 
   document.removeEventListener('keydown', onEscKey);
 }
 
 function onEscKey(evt) {
   if (evt.key === 'Escape') {
-
     const active = document.activeElement;
     if (active === hashtagsField || active === commentField) {
       evt.stopPropagation();
       return;
     }
-
     closeForm();
   }
 }
@@ -96,7 +98,7 @@ function openForm() {
   uploadOverlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
 
-  pristine = new PristineModule.default(form, {
+  pristine = new PristineModule.default(uploadForm, {
     classTo: 'img-upload__field-wrapper',
     errorTextParent: 'img-upload__field-wrapper',
     errorTextClass: 'img-upload__error',
@@ -104,6 +106,8 @@ function openForm() {
 
   pristine.addValidator(hashtagsField, validateHashtags, getHashtagError);
   pristine.addValidator(commentField, validateComment, 'Не более 140 символов');
+
+  resetEffects();
 
   document.addEventListener('keydown', onEscKey);
 }
@@ -115,11 +119,11 @@ function onFormSubmit(evt) {
     return;
   }
 
-  form.submit();
+  uploadForm.submit();
 }
 
 export function initForm() {
   uploadInput.addEventListener('change', openForm);
   uploadCancel.addEventListener('click', closeForm);
-  form.addEventListener('submit', onFormSubmit);
+  uploadForm.addEventListener('submit', onFormSubmit);
 }
