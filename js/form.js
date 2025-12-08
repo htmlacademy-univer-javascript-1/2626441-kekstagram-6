@@ -1,106 +1,105 @@
-//'use strict';
+import {
+  uploadForm,
+  uploadInput,
+  uploadOverlay,
+  uploadCancel,
+} from './form-constants.js';
 
 import * as PristineModule from '../vendor/pristine/pristine.js';
+import { resetEffects } from './effects.js';
 
-const uploadInput = document.querySelector('.img-upload__input');
-const uploadOverlay = document.querySelector('.img-upload__overlay');
-const uploadCancel = document.querySelector('.img-upload__cancel');
-const form = document.querySelector('.img-upload__form');
-
-const hashtagsField = form.querySelector('.text__hashtags');
-const commentField = form.querySelector('.text__description');
-
-let pristine = null;
+const hashtagsField = uploadForm.querySelector('.text__hashtags');
+const commentField = uploadForm.querySelector('.text__description');
 
 const MAX_HASHTAGS = 5;
 const MAX_COMMENT_LENGTH = 140;
+const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 
-const validateHashtags = (value) => {
+let pristine = null;
+
+function parseHashtags(value) {
+  return value
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((tag) => tag.length > 0);
+}
+
+function validateHashtags(value) {
   if (!value.trim()) {
     return true;
   }
 
-  const hashtags = value
-    .toLowerCase()
-    .trim()
-    .split(/\s+/);
+  const tags = parseHashtags(value);
 
-  if (hashtags.length > MAX_HASHTAGS) {
+  if (tags.length > MAX_HASHTAGS) {
     return false;
   }
 
-  const regex = /^#[a-zа-яё0-9]{1,19}$/i;
-
-  const allValid = hashtags.every((tag) => regex.test(tag));
-  if (!allValid) {
+  if (!tags.every((tag) => HASHTAG_REGEX.test(tag))) {
     return false;
   }
 
-  const hasDuplicates = hashtags.length !== new Set(hashtags).size;
+  return new Set(tags).size === tags.length;
+}
 
-  return !hasDuplicates;
-};
-
-const getHashtagError = (value) => {
+function getHashtagError(value) {
   if (!value.trim()) {
     return '';
   }
 
-  const hashtags = value.trim().split(/\s+/);
-  const regex = /^#[a-zа-яё0-9]{1,19}$/i;
+  const tags = parseHashtags(value);
 
-  if (hashtags.length > MAX_HASHTAGS) {
+  if (tags.length > MAX_HASHTAGS) {
     return `Не более ${MAX_HASHTAGS} хэштегов`;
   }
 
-  for (const tag of hashtags) {
-    if (!regex.test(tag)) {
+  for (const tag of tags) {
+    if (!HASHTAG_REGEX.test(tag)) {
       return 'Неверный формат хэштега';
     }
   }
 
-  const hasDuplicates = hashtags.length !== new Set(hashtags).size;
-
-  if (hasDuplicates) {
+  if (new Set(tags).size !== tags.length) {
     return 'Хэштеги не должны повторяться';
   }
 
   return '';
-};
+}
 
-const validateComment = (value) => value.length <= MAX_COMMENT_LENGTH;
+function validateComment(value) {
+  return value.length <= MAX_COMMENT_LENGTH;
+}
 
-const closeForm = () => {
+function closeForm() {
   uploadOverlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
 
-  form.reset();
+  uploadForm.reset();
   uploadInput.value = '';
 
+  resetEffects();
+
   document.removeEventListener('keydown', onEscKey);
-};
+}
 
 function onEscKey(evt) {
   if (evt.key === 'Escape') {
     const active = document.activeElement;
-
     if (active === hashtagsField || active === commentField) {
       evt.stopPropagation();
       return;
     }
-
     closeForm();
   }
 }
 
-const openForm = () => {
+function openForm() {
   uploadOverlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
 
-  pristine = new PristineModule.default(form, {
+  pristine = new PristineModule.default(uploadForm, {
     classTo: 'img-upload__field-wrapper',
-    errorClass: 'img-upload__field-wrapper--invalid',
-    successClass: 'img-upload__field-wrapper--valid',
     errorTextParent: 'img-upload__field-wrapper',
     errorTextClass: 'img-upload__error',
   });
@@ -108,23 +107,23 @@ const openForm = () => {
   pristine.addValidator(hashtagsField, validateHashtags, getHashtagError);
   pristine.addValidator(commentField, validateComment, 'Не более 140 символов');
 
-  document.addEventListener('keydown', onEscKey);
-};
+  resetEffects();
 
-const onFormSubmit = (evt) => {
+  document.addEventListener('keydown', onEscKey);
+}
+
+function onFormSubmit(evt) {
   evt.preventDefault();
 
-  const valid = pristine.validate();
-
-  if (!valid) {
+  if (!pristine.validate()) {
     return;
   }
 
-  form.submit();
-};
+  uploadForm.submit();
+}
 
 export function initForm() {
   uploadInput.addEventListener('change', openForm);
   uploadCancel.addEventListener('click', closeForm);
-  form.addEventListener('submit', onFormSubmit);
+  uploadForm.addEventListener('submit', onFormSubmit);
 }
