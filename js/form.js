@@ -1,3 +1,8 @@
+//'use strict';
+
+import { sendData } from './api.js';
+import { showSuccessMessage, showErrorMessage } from './messages.js';
+
 import {
   uploadForm,
   uploadInput,
@@ -10,6 +15,7 @@ import { resetEffects } from './effects.js';
 
 const hashtagsField = uploadForm.querySelector('.text__hashtags');
 const commentField = uploadForm.querySelector('.text__description');
+const submitButton = uploadForm.querySelector('#upload-submit');
 
 const MAX_HASHTAGS = 5;
 const MAX_COMMENT_LENGTH = 140;
@@ -115,12 +121,28 @@ function openForm() {
 function onFormSubmit(evt) {
   evt.preventDefault();
 
-  if (!pristine.validate()) {
+  const isValid = pristine.validate();
+  if (!isValid) {
     return;
   }
 
-  uploadForm.submit();
+  submitButton.disabled = true;
+
+  const formData = new FormData(uploadForm);
+
+  sendData(formData)
+    .then(() => {
+      closeForm();
+      showSuccessMessage();
+    })
+    .catch(() => {
+      showErrorMessage();
+    })
+    .finally(() => {
+      submitButton.disabled = false;
+    });
 }
+
 
 export function initForm() {
   uploadInput.addEventListener('change', openForm);
