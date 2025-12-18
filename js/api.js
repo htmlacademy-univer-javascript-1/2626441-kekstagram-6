@@ -1,5 +1,3 @@
-//'use strict';
-
 const BASE_URL = 'https://29.javascript.htmlacademy.pro/kekstagram';
 
 const getData = () =>

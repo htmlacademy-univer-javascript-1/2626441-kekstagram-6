@@ -1,5 +1,3 @@
-//'use strict';
-
 import { openBigPicture } from './big-picture.js';
 
 const pictureTemplate = document
@@ -28,12 +26,18 @@ function createPictureElement(photo) {
   return pictureElement;
 }
 
+function clearPictures() {
+  const pictures = pictureContainer.querySelectorAll('.picture');
+  pictures.forEach((picture) => picture.remove());
+}
+
 function renderPictures(photos) {
+  clearPictures();
+
   const fragment = document.createDocumentFragment();
 
   photos.forEach((photo) => {
-    const pictureElement = createPictureElement(photo);
-    fragment.appendChild(pictureElement);
+    fragment.appendChild(createPictureElement(photo));
   });
 
   pictureContainer.appendChild(fragment);
