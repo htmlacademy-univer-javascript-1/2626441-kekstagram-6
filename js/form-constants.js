@@ -1,5 +1,3 @@
-//'use strict';
-
 export const uploadForm = document.querySelector('.img-upload__form');
 export const uploadInput = document.querySelector('#upload-file');
 export const uploadOverlay = document.querySelector('.img-upload__overlay');

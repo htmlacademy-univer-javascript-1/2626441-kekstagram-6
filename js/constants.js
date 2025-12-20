@@ -1,5 +1,3 @@
-//'use strict';
-
 const NAMES = [
   'pupa',
   'lupa',

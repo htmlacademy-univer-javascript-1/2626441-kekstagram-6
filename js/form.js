@@ -1,5 +1,3 @@
-//'use strict';
-
 import { sendData } from './api.js';
 import { showSuccessMessage, showErrorMessage } from './messages.js';
 
@@ -8,6 +6,7 @@ import {
   uploadInput,
   uploadOverlay,
   uploadCancel,
+  imgUploadPreview,
 } from './form-constants.js';
 
 import * as PristineModule from '../vendor/pristine/pristine.js';
@@ -22,6 +21,16 @@ const MAX_COMMENT_LENGTH = 140;
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 
 let pristine = null;
+
+function loadImagePreview() {
+  const file = uploadInput.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  imgUploadPreview.src = URL.createObjectURL(file);
+}
 
 function parseHashtags(value) {
   return value
@@ -91,11 +100,13 @@ function closeForm() {
 
 function onEscKey(evt) {
   if (evt.key === 'Escape') {
-    const active = document.activeElement;
-    if (active === hashtagsField || active === commentField) {
+    const activeElement = document.activeElement;
+
+    if (activeElement === hashtagsField || activeElement === commentField) {
       evt.stopPropagation();
       return;
     }
+
     closeForm();
   }
 }
@@ -103,6 +114,8 @@ function onEscKey(evt) {
 function openForm() {
   uploadOverlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
+
+  loadImagePreview();
 
   pristine = new PristineModule.default(uploadForm, {
     classTo: 'img-upload__field-wrapper',
@@ -121,8 +134,7 @@ function openForm() {
 function onFormSubmit(evt) {
   evt.preventDefault();
 
-  const isValid = pristine.validate();
-  if (!isValid) {
+  if (!pristine.validate()) {
     return;
   }
 

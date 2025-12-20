@@ -1,5 +1,3 @@
-//'use strict';
-
 import { isEscapeKey } from './util.js';
 
 const successTemplate = document.querySelector('#success')

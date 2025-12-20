@@ -1,5 +1,3 @@
-//'use strict';
-
 const COMMENTS_PER_STEP = 5;
 
 const bigPicture = document.querySelector('.big-picture');
